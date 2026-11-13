@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "656701094529",
+    "project_id": "komuni-78726",
+    "storage_bucket": "komuni-78726.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656701094529:android:2b2bad77d26b8999ab6b80",
+        "android_client_info": {
+          "package_name": "com.example.komuni"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvF2ivI8Ki0hmgoL9ZYj_aTHmE2QKRX1E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
