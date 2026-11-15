@@ -16,10 +16,12 @@ import 'firebase_options.dart';
 // APP CONFIGURATION
 // ------------------------------------------------------------
 
-const Color primaryGreen = Color(0xFF2E7D32);
-const Color darkGreen = Color(0xFF1B5E20);
-const Color charcoal = Color(0xFF263238);
-const Color lightBackground = Color(0xFFF5F7F5);
+const Color primaryGreen = Color(0xFF39D878);
+const Color darkGreen = Color(0xFF0B3D2E);
+const Color charcoal = Color(0xFFEAF5EE);
+const Color lightBackground = Color(0xFF071A16);
+const Color glassSurface = Color(0xCC142D26);
+const Color mutedGreen = Color(0xFF9AB8A8);
 
 // Cloudinary configuration.
 // These values come from your Cloudinary account and upload preset.
@@ -28,6 +30,75 @@ const String cloudinaryUploadPreset = 'komuni_reports';
 
 // Firebase Authentication UID of the KOMUNI administrator.
 const String komuniAdminUid = '9tm1DxhjvobuLvabTIMMFjcycWo2';
+
+
+// Shared KOMUNI feedback design used across every screen.
+enum KomuniFeedbackType { success, error, warning, info }
+
+void showKomuniFeedback(
+  BuildContext context, {
+  required String message,
+  KomuniFeedbackType type = KomuniFeedbackType.info,
+}) {
+  final Color background;
+  final Color accent;
+  final IconData icon;
+  switch (type) {
+    case KomuniFeedbackType.success:
+      background = const Color(0xFF103B2B);
+      accent = const Color(0xFF39D98A);
+      icon = Icons.check_circle_rounded;
+      break;
+    case KomuniFeedbackType.error:
+      background = const Color(0xFF3B2026);
+      accent = const Color(0xFFFF737D);
+      icon = Icons.error_rounded;
+      break;
+    case KomuniFeedbackType.warning:
+      background = const Color(0xFF3B301D);
+      accent = const Color(0xFFFFC45C);
+      icon = Icons.warning_rounded;
+      break;
+    case KomuniFeedbackType.info:
+      background = const Color(0xFF17313A);
+      accent = const Color(0xFF72CFFF);
+      icon = Icons.info_rounded;
+      break;
+  }
+  final messenger = ScaffoldMessenger.of(context);
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: background,
+        elevation: 8,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: accent.withValues(alpha: 0.65)),
+        ),
+        duration: const Duration(seconds: 3),
+        content: Row(
+          children: [
+            Icon(icon, color: accent, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Color(0xFFF0FFF5),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,28 +119,121 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'KOMUNI',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: primaryGreen),
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryGreen,
+          brightness: Brightness.dark,
+          surface: glassSurface,
+        ),
         scaffoldBackgroundColor: lightBackground,
         useMaterial3: true,
+        fontFamily: 'Roboto',
         appBarTheme: const AppBarTheme(
-          backgroundColor: primaryGreen,
+          backgroundColor: Color(0xFF0B211B),
           foregroundColor: Colors.white,
+          elevation: 0,
           centerTitle: false,
+        ),
+        cardTheme: CardThemeData(
+          color: glassSurface,
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+            side: const BorderSide(color: Color(0x334DEB91)),
+          ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Colors.white,
+          fillColor: const Color(0xFF102820),
+          labelStyle: const TextStyle(color: mutedGreen),
+          hintStyle: const TextStyle(color: Color(0xFF789488)),
+          prefixIconColor: mutedGreen,
+          suffixIconColor: mutedGreen,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 17,
+          ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0x446CE99A)),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0x334DEB91)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: primaryGreen, width: 1.5),
           ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryGreen,
+            foregroundColor: const Color(0xFF062016),
+            elevation: 5,
+            shadowColor: primaryGreen.withValues(alpha: 0.35),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(foregroundColor: primaryGreen),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: primaryGreen,
+            side: const BorderSide(color: Color(0x8864DFA0)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+        ),
+        dividerColor: const Color(0x334DEB91),
+        dialogTheme: DialogThemeData(
+          backgroundColor: const Color(0xFF102820),
+          surfaceTintColor: Colors.transparent,
+          elevation: 18,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: const BorderSide(color: Color(0x664DEB91)),
+          ),
+          titleTextStyle: const TextStyle(
+            color: Color(0xFFEAF5EE),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          contentTextStyle: const TextStyle(
+            color: Color(0xFFB7D0C3),
+            fontSize: 14,
+            height: 1.45,
+          ),
+        ),
+        snackBarTheme: SnackBarThemeData(
+          backgroundColor: const Color(0xFF17392C),
+          contentTextStyle: const TextStyle(
+            color: Color(0xFFEAF5EE),
+            fontSize: 14,
+          ),
+          actionTextColor: primaryGreen,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: const BorderSide(color: Color(0x554DEB91)),
+          ),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Color(0xFF102820),
+          surfaceTintColor: Colors.transparent,
+          modalBackgroundColor: Color(0xFF102820),
+          showDragHandle: true,
+          dragHandleColor: mutedGreen,
         ),
       ),
       home: const AuthWrapper(),
@@ -169,9 +333,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    showKomuniFeedback(context, message: message, type: KomuniFeedbackType.error);
   }
 
   @override
@@ -186,117 +348,247 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: lightBackground,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(28),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.people_alt_rounded,
-                      size: 65,
-                      color: primaryGreen,
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'KOMUNI',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: primaryGreen,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF142F27),
+              Color(0xFF071A16),
+              Color(0xFF030D0B),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -90,
+              right: -70,
+              child: _GlowOrb(size: 240),
+            ),
+            Positioned(
+              bottom: -100,
+              left: -90,
+              child: _GlowOrb(size: 260),
+            ),
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 36,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 430),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(26, 30, 26, 24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xB8142D26),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: const Color(0x5578F0A5),
+                        width: 1,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      isRegistering
-                          ? 'Create your account'
-                          : 'Welcome back!',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 28),
-                    if (isRegistering) ...[
-                      TextField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Full Name',
-                          prefixIcon: Icon(Icons.person),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryGreen.withValues(alpha: 0.10),
+                          blurRadius: 38,
+                          spreadRadius: 2,
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    TextField(
-                      controller: emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Email Address',
-                        prefixIcon: Icon(Icons.email),
-                      ),
+                        const BoxShadow(
+                          color: Colors.black45,
+                          blurRadius: 28,
+                          offset: Offset(0, 18),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: passwordController,
-                      obscureText: hidePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            hidePassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 76,
+                          height: 76,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF153D2C),
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(
+                              color: const Color(0x8878F0A5),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: primaryGreen.withValues(alpha: 0.30),
+                                blurRadius: 24,
+                              ),
+                            ],
                           ),
-                          onPressed: () {
-                            setState(() {
-                              hidePassword = !hidePassword;
-                            });
-                          },
+                          child: const Icon(
+                            Icons.volunteer_activism_rounded,
+                            color: primaryGreen,
+                            size: 39,
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : authenticate,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryGreen,
-                          foregroundColor: Colors.white,
+                        const SizedBox(height: 17),
+                        const Text(
+                          'KOMUNI',
+                          style: TextStyle(
+                            fontSize: 32,
+                            letterSpacing: 3,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
                         ),
-                        child: isLoading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : Text(isRegistering ? 'REGISTER' : 'LOGIN'),
-                      ),
+                        const SizedBox(height: 7),
+                        const Text(
+                          'Building safer and stronger communities',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: mutedGreen,
+                            fontSize: 12,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            isRegistering ? 'Create account' : 'Welcome back',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 21,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            isRegistering
+                                ? 'Join your community today.'
+                                : 'Sign in to continue to your account.',
+                            style: const TextStyle(
+                              color: mutedGreen,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 23),
+                        if (isRegistering) ...[
+                          TextField(
+                            controller: nameController,
+                            textCapitalization: TextCapitalization.words,
+                            decoration: const InputDecoration(
+                              labelText: 'Full Name',
+                              prefixIcon: Icon(Icons.person_outline_rounded),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                        ],
+                        TextField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                            labelText: 'Email Address',
+                            prefixIcon: Icon(Icons.mail_outline_rounded),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: passwordController,
+                          obscureText: hidePassword,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            prefixIcon: const Icon(Icons.lock_outline_rounded),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                hidePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                              ),
+                              onPressed: () {
+                                setState(() => hidePassword = !hidePassword);
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : authenticate,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryGreen,
+                              foregroundColor: const Color(0xFF062016),
+                              shape: const StadiumBorder(),
+                              elevation: 8,
+                              shadowColor: primaryGreen.withValues(alpha: 0.4),
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: Color(0xFF062016),
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        isRegistering
+                                            ? Icons.person_add_alt_1_rounded
+                                            : Icons.login_rounded,
+                                        size: 19,
+                                      ),
+                                      const SizedBox(width: 9),
+                                      Text(
+                                        isRegistering ? 'CREATE ACCOUNT' : 'SIGN IN',
+                                        style: const TextStyle(
+                                          letterSpacing: 1,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              isRegistering
+                                  ? 'Already have an account? '
+                                  : "Don't have an account? ",
+                              style: const TextStyle(
+                                color: mutedGreen,
+                                fontSize: 13,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() => isRegistering = !isRegistering);
+                              },
+                              child: Text(
+                                isRegistering ? 'Sign in' : 'Register',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          isRegistering = !isRegistering;
-                        });
-                      },
-                      child: Text(
-                        isRegistering
-                            ? 'Already have an account? Login'
-                            : "Don't have an account? Register",
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -321,11 +613,6 @@ class HomePage extends StatelessWidget {
     final userStream = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
-        .snapshots();
-
-    final reportsStream = FirebaseFirestore.instance
-        .collection('reports')
-        .where('userId', isEqualTo: user.uid)
         .snapshots();
 
     return Scaffold(
@@ -403,6 +690,15 @@ class HomePage extends StatelessWidget {
         builder: (context, userSnapshot) {
           final userData = userSnapshot.data?.data();
           final name = userData?['name']?.toString() ?? 'User';
+          final isAdmin =
+              userData?['role']?.toString().toLowerCase() == 'admin';
+
+          final reportsStream = isAdmin
+              ? FirebaseFirestore.instance.collection('reports').snapshots()
+              : FirebaseFirestore.instance
+                  .collection('reports')
+                  .where('userId', isEqualTo: user.uid)
+                  .snapshots();
 
           return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: reportsStream,
@@ -441,11 +737,19 @@ class HomePage extends StatelessWidget {
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [primaryGreen, darkGreen],
+                          colors: [Color(0xFF174C37), Color(0xFF102B22)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0x6652E68C)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryGreen.withValues(alpha: 0.08),
+                            blurRadius: 22,
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,7 +793,7 @@ class HomePage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: charcoal,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -501,7 +805,7 @@ class HomePage extends StatelessWidget {
                     else
                       LayoutBuilder(
                         builder: (context, constraints) {
-                          final cardWidth = (constraints.maxWidth - 24) / 3;
+                          final cardWidth = (constraints.maxWidth - 12) / 2;
 
                           return Wrap(
                             spacing: 12,
@@ -553,7 +857,7 @@ class HomePage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: charcoal,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -826,12 +1130,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Your report was submitted successfully!'),
-          backgroundColor: primaryGreen,
-        ),
-      );
+      showKomuniFeedback(context, message: 'Your report was submitted successfully!', type: KomuniFeedbackType.success);
 
       Navigator.pop(context);
     } catch (e) {
@@ -844,9 +1143,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    showKomuniFeedback(context, message: message, type: KomuniFeedbackType.error);
   }
 
   @override
@@ -879,14 +1176,14 @@ class _CreateReportPageState extends State<CreateReportPage> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: charcoal,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   'Provide accurate information so your community '
                   'can respond to the issue.',
-                  style: TextStyle(color: Colors.black54),
+                  style: TextStyle(color: mutedGreen),
                 ),
                 const SizedBox(height: 24),
                 const Text(
@@ -986,7 +1283,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                 const Text(
                   'Optional, but recommended. Add a photo to help '
                   'explain the issue.',
-                  style: TextStyle(color: Colors.black54, fontSize: 13),
+                  style: TextStyle(color: mutedGreen, fontSize: 13),
                 ),
                 const SizedBox(height: 12),
                 if (selectedImageBytes != null)
@@ -1003,8 +1300,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
                   Container(
                     height: 150,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
+                      color: glassSurface,
+                      border: Border.all(color: const Color(0x554DEB91)),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Column(
@@ -1165,14 +1462,14 @@ class MyReportsPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 21,
                         fontWeight: FontWeight.bold,
-                        color: charcoal,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
                       'Your submitted community reports will appear here.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black54),
+                      style: TextStyle(color: mutedGreen),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
@@ -1236,11 +1533,12 @@ class ReportCard extends StatelessWidget {
     final imageUrl = data['imageUrl']?.toString();
 
     return Card(
-      color: Colors.white,
-      elevation: 1,
+      color: glassSurface,
+      elevation: 0,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: Color(0x554DEB91)),
       ),
       child: InkWell(
         onTap: () {
@@ -1283,7 +1581,7 @@ class ReportCard extends StatelessWidget {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: charcoal,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -1300,7 +1598,7 @@ class ReportCard extends StatelessWidget {
                         const Icon(
                           Icons.location_on_outlined,
                           size: 15,
-                          color: Colors.grey,
+                          color: mutedGreen,
                         ),
                         const SizedBox(width: 3),
                         Expanded(
@@ -1309,7 +1607,7 @@ class ReportCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: Colors.black54,
+                              color: mutedGreen,
                               fontSize: 12,
                             ),
                           ),
@@ -1323,7 +1621,7 @@ class ReportCard extends StatelessWidget {
               ),
               const Icon(
                 Icons.chevron_right,
-                color: Colors.grey,
+                color: mutedGreen,
               ),
             ],
           ),
@@ -1337,10 +1635,10 @@ Widget reportPlaceholder() {
   return Container(
     width: 92,
     height: 92,
-    color: Colors.grey.shade100,
+    color: glassSurface,
     child: const Icon(
       Icons.image_not_supported_outlined,
-      color: Colors.grey,
+      color: mutedGreen,
       size: 32,
     ),
   );
@@ -1443,8 +1741,8 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
                   maxHeight: MediaQuery.of(dialogContext).size.height * 0.85,
                 ),
                 child: Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
+                  color: const Color(0xFF102820),
+                  borderRadius: BorderRadius.circular(22),
                   clipBehavior: Clip.antiAlias,
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(20),
@@ -1460,7 +1758,7 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF263238),
+                                  color: Color(0xFFEAF5EE),
                                 ),
                               ),
                             ),
@@ -1468,6 +1766,7 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
                               tooltip: 'Close',
                               onPressed: () =>
                                   Navigator.pop(dialogContext),
+                              color: mutedGreen,
                               icon: const Icon(Icons.close),
                             ),
                           ],
@@ -1491,7 +1790,7 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
                                       }
                                       if (snapshot.hasError) {
                                         return const ColoredBox(
-                                          color: Color(0xFFEEEEEE),
+                                          color: Color(0xFF0B211B),
                                           child: Center(
                                             child: Icon(
                                               Icons.broken_image_outlined,
@@ -1501,7 +1800,7 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
                                         );
                                       }
                                       return const ColoredBox(
-                                        color: Color(0xFFEEEEEE),
+                                        color: Color(0xFF0B211B),
                                         child: Center(
                                           child: CircularProgressIndicator(),
                                         ),
@@ -1515,7 +1814,7 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
                                         width: double.infinity,
                                         errorBuilder: (_, _, _) =>
                                             const ColoredBox(
-                                          color: Color(0xFFEEEEEE),
+                                          color: Color(0xFF0B211B),
                                           child: Center(
                                             child: Icon(
                                               Icons.broken_image_outlined,
@@ -1525,7 +1824,7 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
                                         ),
                                       )
                                     : const ColoredBox(
-                                        color: Color(0xFFEEEEEE),
+                                        color: Color(0xFF0B211B),
                                         child: Center(
                                           child: Icon(
                                             Icons.image_not_supported_outlined,
@@ -1624,13 +1923,7 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
                                       descriptionController.text
                                           .trim()
                                           .isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Please complete all fields.',
-                                        ),
-                                      ),
-                                    );
+                                    showKomuniFeedback(dialogContext, message: 'Please complete all fields.', type: KomuniFeedbackType.warning);
                                     return;
                                   }
 
@@ -1658,6 +1951,9 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
       },
     );
 
+    // Let the dialog route finish its pop transition before disposing the
+    // controllers still attached to its TextFields (important on Android).
+    await Future<void>.delayed(const Duration(milliseconds: 350));
     titleController.dispose();
     locationController.dispose();
     descriptionController.dispose();
@@ -1673,9 +1969,7 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
       final selectedImage = result.remove('_selectedImage') as XFile?;
       if (selectedImage != null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Uploading new report image...')),
-        );
+        showKomuniFeedback(context, message: 'Uploading new report image...', type: KomuniFeedbackType.info);
         result['imageUrl'] =
             await _uploadEditedImageToCloudinary(selectedImage);
       }
@@ -1689,17 +1983,11 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Your report has been updated successfully.'),
-          ),
-        );
+        showKomuniFeedback(context, message: 'Report updated successfully.', type: KomuniFeedbackType.success);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unable to update report: $e')),
-        );
+        showKomuniFeedback(context, message: 'Unable to update report: $e', type: KomuniFeedbackType.error);
       }
     }
   }
@@ -1722,11 +2010,11 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
       if (user == null || data['userId'] != user.uid) throw Exception('You can only delete your own report.');
       await FirebaseFirestore.instance.collection('reports').doc(widget.reportId).delete();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your report has been deleted.')));
+        showKomuniFeedback(context, message: 'Report deleted successfully.', type: KomuniFeedbackType.success);
         Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Unable to delete report: $e')));
+      if (mounted) showKomuniFeedback(context, message: 'Unable to delete report: $e', type: KomuniFeedbackType.error);
     }
   }
 
@@ -1761,9 +2049,9 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
             padding: const EdgeInsets.all(20),
             children: [
               if (imageUrl != null && imageUrl.isNotEmpty)
-                ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network(imageUrl, height: 230, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, _, _) => Container(height: 180, color: Colors.grey.shade200, child: const Icon(Icons.broken_image_outlined, size: 50))))
+                ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network(imageUrl, height: 230, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, _, _) => Container(height: 180, color: glassSurface, child: const Icon(Icons.broken_image_outlined, size: 50, color: mutedGreen))))
               else
-                Container(height: 150, decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)), child: const Icon(Icons.image_not_supported_outlined, size: 50, color: Colors.grey)),
+                Container(height: 150, decoration: BoxDecoration(color: glassSurface, border: Border.all(color: const Color(0x554DEB91)), borderRadius: BorderRadius.circular(16)), child: const Icon(Icons.image_not_supported_outlined, size: 50, color: mutedGreen)),
               const SizedBox(height: 22),
               Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: charcoal)),
               const SizedBox(height: 12),
@@ -1775,9 +2063,9 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
               const SizedBox(height: 18),
               const Text('Description', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: charcoal)),
               const SizedBox(height: 8),
-              Text(description.isEmpty ? 'No description provided.' : description, style: const TextStyle(fontSize: 15, height: 1.5, color: Colors.black87)),
+              Text(description.isEmpty ? 'No description provided.' : description, style: const TextStyle(fontSize: 15, height: 1.5, color: Colors.white)),
               const SizedBox(height: 20),
-              Text('Report ID: ${widget.reportId}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+              Text('Report ID: ${widget.reportId}', style: const TextStyle(color: mutedGreen, fontSize: 11)),
             ],
           ),
         );
@@ -1791,9 +2079,9 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, color: primaryGreen), const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          Text(label, style: const TextStyle(color: mutedGreen, fontSize: 12)),
           const SizedBox(height: 3),
-          Text(value, style: const TextStyle(color: charcoal, fontWeight: FontWeight.w600, fontSize: 15)),
+          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
         ])),
       ]),
     );
@@ -1804,6 +2092,69 @@ class _ReportDetailsPageState extends State<ReportDetailsPage> {
 // ACCOUNT SETTINGS PAGE
 // ------------------------------------------------------------
 
+
+class _EditFullNameDialog extends StatefulWidget {
+  const _EditFullNameDialog({
+    required this.currentName,
+    required this.onEmptyName,
+  });
+
+  final String currentName;
+  final VoidCallback onEmptyName;
+
+  @override
+  State<_EditFullNameDialog> createState() => _EditFullNameDialogState();
+}
+
+class _EditFullNameDialogState extends State<_EditFullNameDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.currentName);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Change Full Name'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textCapitalization: TextCapitalization.words,
+        decoration: const InputDecoration(
+          labelText: 'Full Name',
+          hintText: 'Enter your full name',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            final newName = _controller.text.trim();
+            if (newName.isEmpty) {
+              widget.onEmptyName();
+              return;
+            }
+            Navigator.pop(context, newName);
+          },
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+}
+
 class AccountSettingsPage extends StatefulWidget {
   const AccountSettingsPage({super.key});
 
@@ -1813,41 +2164,19 @@ class AccountSettingsPage extends StatefulWidget {
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
   Future<void> editFullName(String currentName) async {
-    final controller = TextEditingController(text: currentName);
     final newName = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Change Full Name'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            labelText: 'Full Name',
-            hintText: 'Enter your full name',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (controller.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Full name cannot be empty.')),
-                );
-                return;
-              }
-              Navigator.pop(dialogContext, controller.text.trim());
-            },
-            child: const Text('Save'),
-          ),
-        ],
+      builder: (dialogContext) => _EditFullNameDialog(
+        currentName: currentName,
+        onEmptyName: () {
+          showKomuniFeedback(
+            context,
+            message: 'Full name cannot be empty.',
+            type: KomuniFeedbackType.warning,
+          );
+        },
       ),
     );
-    controller.dispose();
 
     if (newName == null) return;
     final user = FirebaseAuth.instance.currentUser;
@@ -1860,15 +2189,11 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           .update({'name': newName});
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Full name updated successfully.')),
-        );
+        showKomuniFeedback(context, message: 'Full name updated successfully.', type: KomuniFeedbackType.success);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unable to update name: $e')),
-        );
+        showKomuniFeedback(context, message: 'Unable to update name: $e', type: KomuniFeedbackType.error);
       }
     }
   }
@@ -1888,11 +2213,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.email == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please log in again before changing your password.'),
-        ),
-      );
+      showKomuniFeedback(context, message: 'Please log in again before changing your password.', type: KomuniFeedbackType.warning);
       return;
     }
 
@@ -1915,7 +2236,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                         const Text(
                           'For your security, enter your current password '
                           'to verify your identity.',
-                          style: TextStyle(color: Colors.black54),
+                          style: TextStyle(color: mutedGreen),
                         ),
                         const SizedBox(height: 18),
                         TextFormField(
@@ -2207,7 +2528,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             children: [
               const CircleAvatar(
                 radius: 42,
-                backgroundColor: Color(0xFFE8F5E9),
+                backgroundColor: Color(0xFF173D2D),
                 child: Icon(
                   Icons.person,
                   size: 45,
@@ -2221,7 +2542,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   style: const TextStyle(
                     fontSize: 21,
                     fontWeight: FontWeight.bold,
-                    color: charcoal,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -2229,7 +2550,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               Center(
                 child: Text(
                   user.email ?? '',
-                  style: const TextStyle(color: Colors.black54),
+                  style: const TextStyle(color: mutedGreen),
                 ),
               ),
               const SizedBox(height: 30),
@@ -2340,31 +2661,29 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: 18,
-        horizontal: 8,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        color: glassSurface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0x554DEB91)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: primaryGreen.withValues(alpha: 0.06),
+            blurRadius: 18,
+            spreadRadius: 1,
           ),
         ],
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 30),
+          Icon(icon, color: color, size: 29),
           const SizedBox(height: 10),
           Text(
             '$count',
             style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
-              color: color,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 5),
@@ -2374,7 +2693,7 @@ class StatCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: charcoal,
+              color: mutedGreen,
             ),
           ),
         ],
@@ -2404,34 +2723,84 @@ class FeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,
-      elevation: 1,
+      color: glassSurface,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: Color(0x554DEB91)),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(14),
-        leading: CircleAvatar(
-          backgroundColor: primaryGreen.withValues(alpha: 0.12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 10,
+        ),
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: primaryGreen.withValues(alpha: 0.13),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: primaryGreen.withValues(alpha: 0.28),
+            ),
+          ),
           child: Icon(icon, color: primaryGreen),
         ),
         title: Text(
           title,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            color: charcoal,
+            color: Colors.white,
+            fontSize: 16,
           ),
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 5),
-          child: Text(description),
+          child: Text(
+            description,
+            style: const TextStyle(
+              color: mutedGreen,
+              fontSize: 13,
+            ),
+          ),
         ),
         trailing: const Icon(
           Icons.arrow_forward_ios_rounded,
           size: 16,
-          color: Colors.grey,
+          color: mutedGreen,
         ),
         onTap: onTap,
+      ),
+    );
+  }
+}
+
+// ------------------------------------------------------------
+// SOFT GREEN GLOW DECORATION
+// ------------------------------------------------------------
+
+class _GlowOrb extends StatelessWidget {
+  final double size;
+
+  const _GlowOrb({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              primaryGreen.withValues(alpha: 0.20),
+              primaryGreen.withValues(alpha: 0.08),
+              primaryGreen.withValues(alpha: 0.00),
+            ],
+            stops: const [0.0, 0.48, 1.0],
+          ),
+        ),
       ),
     );
   }

@@ -1,9 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-const Color adminGreen = Color(0xFF2E7D32);
-const Color adminDarkGreen = Color(0xFF1B5E20);
-const Color adminBackground = Color(0xFFF5F7F5);
+const Color adminGreen = Color(0xFF39D98A);
+const Color adminDarkGreen = Color(0xFFE8FFF2);
+const Color adminBackground = Color(0xFF071A14);
+const Color adminSurface = Color(0xCC102B20);
+const Color adminBorder = Color(0x6639D98A);
+const Color adminMuted = Color(0xFFAAC5B6);
+
+
+enum AdminFeedbackType { success, error, warning, info }
+
+void showAdminFeedback(
+  BuildContext context, {
+  required String message,
+  AdminFeedbackType type = AdminFeedbackType.info,
+}) {
+  final Color background;
+  final Color accent;
+  final IconData icon;
+  switch (type) {
+    case AdminFeedbackType.success:
+      background = const Color(0xFF103B2B);
+      accent = const Color(0xFF39D98A);
+      icon = Icons.check_circle_rounded;
+      break;
+    case AdminFeedbackType.error:
+      background = const Color(0xFF3B2026);
+      accent = const Color(0xFFFF737D);
+      icon = Icons.error_rounded;
+      break;
+    case AdminFeedbackType.warning:
+      background = const Color(0xFF3B301D);
+      accent = const Color(0xFFFFC45C);
+      icon = Icons.warning_rounded;
+      break;
+    case AdminFeedbackType.info:
+      background = const Color(0xFF17313A);
+      accent = const Color(0xFF72CFFF);
+      icon = Icons.info_rounded;
+      break;
+  }
+  final messenger = ScaffoldMessenger.of(context);
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: background,
+        elevation: 8,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: accent.withValues(alpha: 0.65)),
+        ),
+        duration: const Duration(seconds: 3),
+        content: Row(
+          children: [
+            Icon(icon, color: accent, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Color(0xFFF0FFF5),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+}
 
 const List<String> reportStatuses = ['Pending', 'In Progress', 'Resolved'];
 const List<String> reportCategories = [
@@ -43,10 +114,13 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     return Scaffold(
       backgroundColor: adminBackground,
       appBar: AppBar(
-        backgroundColor: adminGreen,
-        foregroundColor: Colors.white,
-        title: const Text('KOMUNI Admin Panel',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: const Color(0xFF0A2118),
+        foregroundColor: const Color(0xFFF2FFF7),
+        elevation: 0,
+        title: const Text(
+          'KOMUNI Admin Panel',
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.2),
+        ),
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: reportsStream,
@@ -101,14 +175,27 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                         color: adminDarkGreen)),
                 const SizedBox(height: 6),
                 const Text('Monitor and manage community reports.',
-                    style: TextStyle(color: Colors.black54)),
+                    style: TextStyle(color: adminMuted)),
                 const SizedBox(height: 20),
-                Wrap(spacing: 12, runSpacing: 12, children: [
-                  _statCard('Total Reports', reports.length, Icons.assignment),
-                  _statCard('Pending', countFor('Pending'), Icons.pending_actions),
-                  _statCard('In Progress', countFor('In Progress'), Icons.autorenew),
-                  _statCard('Resolved', countFor('Resolved'), Icons.check_circle),
-                ]),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    const spacing = 12.0;
+                    final cardWidth = (constraints.maxWidth - spacing) / 2;
+                    return Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: [
+                          SizedBox(width: cardWidth, child: _statCard('Total Reports', reports.length, Icons.assignment)),
+                          SizedBox(width: cardWidth, child: _statCard('Pending', countFor('Pending'), Icons.pending_actions)),
+                          SizedBox(width: cardWidth, child: _statCard('In Progress', countFor('In Progress'), Icons.autorenew)),
+                          SizedBox(width: cardWidth, child: _statCard('Resolved', countFor('Resolved'), Icons.check_circle)),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 30),
                 const Text('All Reports',
                     style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold,
@@ -119,6 +206,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   onChanged: (value) => setState(() => searchQuery = value),
                   decoration: InputDecoration(
                     hintText: 'Search title, category, location, or user...',
+                    hintStyle: const TextStyle(color: adminMuted),
                     prefixIcon: const Icon(Icons.search, color: adminGreen),
                     suffixIcon: searchQuery.isEmpty
                         ? null
@@ -131,9 +219,9 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                             },
                           ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: adminSurface,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: adminBorder)),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -141,13 +229,14 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   initialValue: selectedFilter,
                   decoration: InputDecoration(
                     labelText: 'Filter by status',
+                    labelStyle: const TextStyle(color: adminMuted),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: adminSurface,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: adminBorder)),
                   ),
                   items: ['All', ...reportStatuses]
-                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                      .map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(color: Color(0xFFE8FFF2)))))
                       .toList(),
                   onChanged: (value) {
                     if (value != null) setState(() => selectedFilter = value);
@@ -155,7 +244,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                 ),
                 const SizedBox(height: 10),
                 Text('${filteredReports.length} report(s) found',
-                    style: const TextStyle(color: Colors.black54)),
+                    style: const TextStyle(color: adminMuted)),
                 const SizedBox(height: 12),
                 if (filteredReports.isEmpty)
                   const Center(
@@ -170,11 +259,11 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                     final title = (data['title'] ?? 'Untitled Report').toString();
                     final imageUrl = (data['imageUrl'] ?? '').toString();
                     return Card(
-                      color: Colors.white,
-                      elevation: 2,
+                      color: adminSurface,
+                      elevation: 0,
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(18), side: const BorderSide(color: adminBorder)),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(14),
                         leading: imageUrl.isNotEmpty
@@ -186,20 +275,20 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                               )
                             : _reportIcon(),
                         title: Text(title,
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFF0FFF5))),
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 6),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text((data['category'] ?? 'No category').toString()),
-                              Text((data['location'] ?? 'No location').toString()),
+                              Text((data['category'] ?? 'No category').toString(), style: const TextStyle(color: adminMuted)),
+                              Text((data['location'] ?? 'No location').toString(), style: const TextStyle(color: adminMuted)),
                               const SizedBox(height: 6),
                               _statusChip((data['status'] ?? 'Pending').toString()),
                             ],
                           ),
                         ),
-                        trailing: const Icon(Icons.chevron_right),
+                        trailing: const Icon(Icons.chevron_right, color: adminGreen),
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -223,19 +312,19 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
 
   Widget _statCard(String title, int count, IconData icon) {
     return SizedBox(
-      width: 155,
+      width: double.infinity,
       child: Card(
-        color: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        color: adminSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: adminBorder)),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             Icon(icon, color: adminGreen, size: 28),
             const SizedBox(height: 12),
             Text('$count', style: const TextStyle(fontSize: 25,
                 fontWeight: FontWeight.bold, color: adminDarkGreen)),
-            Text(title, style: const TextStyle(color: Colors.black54)),
+            Text(title, textAlign: TextAlign.center, style: const TextStyle(color: adminMuted)),
           ]),
         ),
       ),
@@ -258,36 +347,38 @@ class AdminReportDetailsPage extends StatelessWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Edit Report'),
+          title: const Text('Edit Report', style: TextStyle(color: Color(0xFFE8FFF2))),
           content: SingleChildScrollView(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               TextField(controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Report title')),
+                  decoration: const InputDecoration(labelText: 'Report title', labelStyle: TextStyle(color: adminMuted))),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 initialValue: category,
-                decoration: const InputDecoration(labelText: 'Category'),
-                items: reportCategories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                decoration: const InputDecoration(labelText: 'Category', labelStyle: TextStyle(color: adminMuted)),
+                items: reportCategories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(color: Color(0xFFE8FFF2))))).toList(),
                 onChanged: (value) { if (value != null) setDialogState(() => category = value); },
               ),
               const SizedBox(height: 10),
               TextField(controller: locationController,
-                  decoration: const InputDecoration(labelText: 'Location')),
+                  decoration: const InputDecoration(labelText: 'Location', labelStyle: TextStyle(color: adminMuted))),
               const SizedBox(height: 10),
               TextField(controller: descriptionController, maxLines: 4,
-                  decoration: const InputDecoration(labelText: 'Description')),
+                  decoration: const InputDecoration(labelText: 'Description', labelStyle: TextStyle(color: adminMuted))),
             ]),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: adminGreen),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF20B978)),
               onPressed: () {
                 if (titleController.text.trim().isEmpty ||
                     locationController.text.trim().isEmpty ||
                     descriptionController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please complete all fields.')),
+                  showAdminFeedback(
+                    context,
+                    message: 'Please complete all fields.',
+                    type: AdminFeedbackType.warning,
                   );
                   return;
                 }
@@ -316,15 +407,18 @@ class AdminReportDetailsPage extends StatelessWidget {
         'updatedAt': FieldValue.serverTimestamp(),
       });
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Report details updated successfully.'),
-              backgroundColor: adminGreen),
+        showAdminFeedback(
+          context,
+          message: 'Report details updated successfully.',
+          type: AdminFeedbackType.success,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to edit report: $e'), backgroundColor: Colors.red),
+        showAdminFeedback(
+          context,
+          message: 'Unable to update the report. Please try again.',
+          type: AdminFeedbackType.error,
         );
       }
     }
@@ -335,7 +429,7 @@ class AdminReportDetailsPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Report?'),
+        title: const Text('Delete Report?', style: TextStyle(color: Color(0xFFE8FFF2))),
         content: Text('Are you sure you want to permanently delete "$title"? This action cannot be undone.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(dialogContext, false),
@@ -371,15 +465,19 @@ class AdminReportDetailsPage extends StatelessWidget {
       batch.delete(reportRef);
       await batch.commit();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Report deleted successfully.')),
+        showAdminFeedback(
+          context,
+          message: 'Report deleted successfully.',
+          type: AdminFeedbackType.success,
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete report: $e'), backgroundColor: Colors.red),
+        showAdminFeedback(
+          context,
+          message: 'Unable to delete the report. Please try again.',
+          type: AdminFeedbackType.error,
         );
       }
     }
@@ -390,8 +488,9 @@ class AdminReportDetailsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: adminBackground,
       appBar: AppBar(
-        backgroundColor: adminGreen,
-        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF0A2118),
+        foregroundColor: const Color(0xFFF2FFF7),
+        elevation: 0,
         title: const Text('Report Details'),
         actions: [
           IconButton(
@@ -432,7 +531,7 @@ class AdminReportDetailsPage extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   child: Image.network(imageUrl, width: double.infinity, height: 230, fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(height: 150, color: Colors.black12,
+                    errorBuilder: (_, _, _) => Container(height: 150, color: const Color(0xFF173D2C),
                       alignment: Alignment.center, child: const Text('Unable to load image'))),
                 ),
               const SizedBox(height: 20),
@@ -453,9 +552,9 @@ class AdminReportDetailsPage extends StatelessWidget {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: safeStatus,
-                decoration: InputDecoration(filled: true, fillColor: Colors.white,
+                decoration: InputDecoration(filled: true, fillColor: adminSurface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                items: reportStatuses.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                items: reportStatuses.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(color: Color(0xFFE8FFF2))))).toList(),
                 onChanged: (newStatus) async {
                   if (newStatus == null || newStatus == safeStatus) return;
                   try {
@@ -481,14 +580,18 @@ class AdminReportDetailsPage extends StatelessWidget {
                     }
                     await batch.commit();
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Report status updated and owner notified.'), backgroundColor: adminGreen),
+                      showAdminFeedback(
+                        context,
+                        message: 'Report status updated and owner notified.',
+                        type: AdminFeedbackType.success,
                       );
                     }
                   } catch (e) {
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to update status: $e'), backgroundColor: Colors.red),
+                      showAdminFeedback(
+                        context,
+                        message: 'Unable to update the report status. Please try again.',
+                        type: AdminFeedbackType.error,
                       );
                     }
                   }
@@ -504,10 +607,10 @@ class AdminReportDetailsPage extends StatelessWidget {
   Widget _detailRow(String label, dynamic value) => Padding(
     padding: const EdgeInsets.only(bottom: 14),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: adminDarkGreen)),
+      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: adminGreen)),
       const SizedBox(height: 4),
       Text(value?.toString().isNotEmpty == true ? value.toString() : 'Not available',
-          style: const TextStyle(fontSize: 15)),
+          style: const TextStyle(fontSize: 15, color: Color(0xFFE0F2E8))),
     ]),
   );
 }
